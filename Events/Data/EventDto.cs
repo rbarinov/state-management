@@ -1,12 +1,12 @@
 namespace Events.Data;
 
-public class Event
+public class EventDto
 {
     public int GlobalVersion { get; set; }
 
     public required string StreamId { get; set; }
 
-    public Stream Stream { get; set; } = null!;
+    public StreamDto Stream { get; set; } = null!;
 
     public int Version { get; set; }
 

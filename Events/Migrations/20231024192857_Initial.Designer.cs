@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Events.Migrations
 {
     [DbContext(typeof(EventDbContext))]
-    [Migration("20231024190801_Initial")]
+    [Migration("20231024192857_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -19,12 +19,12 @@ namespace Events.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0-rc.2.23480.1")
+                .HasAnnotation("ProductVersion", "7.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Events.Data.Event", b =>
+            modelBuilder.Entity("Events.Data.EventDto", b =>
                 {
                     b.Property<int>("GlobalVersion")
                         .ValueGeneratedOnAdd()
@@ -67,7 +67,7 @@ namespace Events.Migrations
                     b.ToTable("events", (string)null);
                 });
 
-            modelBuilder.Entity("Events.Data.Stream", b =>
+            modelBuilder.Entity("Events.Data.StreamDto", b =>
                 {
                     b.Property<string>("StreamId")
                         .HasMaxLength(128)
@@ -85,9 +85,9 @@ namespace Events.Migrations
                     b.ToTable("streams", (string)null);
                 });
 
-            modelBuilder.Entity("Events.Data.Event", b =>
+            modelBuilder.Entity("Events.Data.EventDto", b =>
                 {
-                    b.HasOne("Events.Data.Stream", "Stream")
+                    b.HasOne("Events.Data.StreamDto", "Stream")
                         .WithMany("Events")
                         .HasForeignKey("StreamId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -97,7 +97,7 @@ namespace Events.Migrations
                     b.Navigation("Stream");
                 });
 
-            modelBuilder.Entity("Events.Data.Stream", b =>
+            modelBuilder.Entity("Events.Data.StreamDto", b =>
                 {
                     b.Navigation("Events");
                 });

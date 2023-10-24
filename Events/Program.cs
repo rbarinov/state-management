@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
+using Events.CompiledDataContext;
 using Events.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Stream = Events.Data.Stream;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +10,7 @@ builder.Services.AddDbContextPool<EventDbContext>(
     (provider, optionsBuilder) =>
     {
         optionsBuilder.UseNpgsql("Host=localhost;Username=postgres;Password=postgres;Database=events");
+        optionsBuilder.UseModel(EventDbContextModel.Instance);
     }
 );
 
@@ -53,11 +54,11 @@ app.MapPost(
     "/streams/{streamId}/events",
     async ([FromServices] EventDbContext db, string streamId, [FromBody] EventModel model) =>
     {
-        Stream? stream;
+        StreamDto? stream;
 
         if (model.ExpectedVersion == -1)
         {
-            stream = new Stream
+            stream = new StreamDto
             {
                 StreamId = streamId,
                 Version = -1
@@ -77,7 +78,7 @@ app.MapPost(
 
         stream.Version++;
 
-        var ev = new Event
+        var ev = new EventDto
         {
             StreamId = streamId,
             Version = stream.Version,

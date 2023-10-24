@@ -1,16 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 namespace Events.Data;
 
 public class EventDbContext(DbContextOptions<EventDbContext> options) : DbContext(options)
 {
-    public required DbSet<Stream> Streams { get; set; }
-    public required DbSet<Event> Events { get; set; }
+    public required DbSet<StreamDto> Streams { get; set; }
+    public required DbSet<EventDto> Events { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var streamEntity = modelBuilder.Entity<Stream>();
+        var streamEntity = modelBuilder.Entity<StreamDto>();
 
         streamEntity
             .ToTable("streams")
@@ -27,7 +26,7 @@ public class EventDbContext(DbContextOptions<EventDbContext> options) : DbContex
             .IsRequired()
             .IsConcurrencyToken();
 
-        var eventEntity = modelBuilder.Entity<Event>();
+        var eventEntity = modelBuilder.Entity<EventDto>();
 
         eventEntity
             .ToTable("events")
