@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Events.CompiledDataContext;
 using Events.Data;
+using Events.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextPool<EventDbContext>(
     (provider, optionsBuilder) =>
     {
-        optionsBuilder.UseNpgsql("Host=localhost;Username=postgres;Password=postgres;Database=events");
+        optionsBuilder.UseNpgsql("Host=host.docker.internal;Username=postgres;Password=postgres;Database=events");
         optionsBuilder.UseModel(EventDbContextModel.Instance);
     }
 );
@@ -30,7 +31,15 @@ app.MapGet(
         "/streams",
         async ([FromServices] EventDbContext db) =>
         {
-            var streams = await db.Streams.ToListAsync();
+            var streams = await db.Streams
+                .Select(
+                    e => new StreamModelOut
+                    {
+                        StreamId = e.StreamId,
+                        Version = e.Version
+                    }
+                )
+                .ToListAsync();
 
             return streams;
         }
@@ -39,10 +48,36 @@ app.MapGet(
 
 app.MapGet(
         "/streams/{streamId}/events",
-        async ([FromServices] EventDbContext db, string streamId) =>
+        async (
+            [FromServices] EventDbContext db,
+            string streamId,
+            int page = 1,
+            int pageSize = 5,
+            int? fromVersion = null
+        ) =>
         {
-            var events = await db.Events
-                .Where(e => e.StreamId == streamId)
+            var q = db.Events
+                .Where(e => e.StreamId == streamId);
+
+            if (fromVersion.HasValue)
+            {
+                q = q.Where(e => e.Version > fromVersion.Value);
+            }
+
+            var events = await q
+                .OrderBy(e => e.GlobalVersion)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(
+                    e => new EventModelOut
+                    {
+                        GlobalVersion = e.GlobalVersion,
+                        StreamId = e.StreamId,
+                        Version = e.Version,
+                        Type = e.Type,
+                        Payload64 = Convert.ToBase64String(e.Payload)
+                    }
+                )
                 .ToListAsync();
 
             return events;
@@ -52,7 +87,7 @@ app.MapGet(
 
 app.MapPost(
     "/streams/{streamId}/events",
-    async ([FromServices] EventDbContext db, string streamId, [FromBody] EventModel model) =>
+    async ([FromServices] EventDbContext db, string streamId, [FromBody] EventModelIn model) =>
     {
         StreamDto? stream;
 
@@ -91,7 +126,16 @@ app.MapPost(
 
         await db.SaveChangesAsync();
 
-        return Results.Created($"/streams/{streamId}/events/{stream.Version}", ev);
+        var response = new EventModelOut
+        {
+            GlobalVersion = ev.GlobalVersion,
+            StreamId = streamId,
+            Version = stream.Version,
+            Type = ev.Type,
+            Payload64 = Convert.ToBase64String(ev.Payload)
+        };
+
+        return Results.Created($"/streams/{streamId}/events/{stream.Version}", response);
     }
 );
 
@@ -101,6 +145,16 @@ app.MapGet(
         {
             var ev = await db.Events
                 .Where(e => e.StreamId == streamId && e.Version == version)
+                .Select(
+                    e => new EventModelOut
+                    {
+                        GlobalVersion = e.GlobalVersion,
+                        StreamId = e.StreamId,
+                        Version = e.Version,
+                        Type = e.Type,
+                        Payload64 = Convert.ToBase64String(e.Payload)
+                    }
+                )
                 .FirstOrDefaultAsync();
 
             if (ev == null)
