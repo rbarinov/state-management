@@ -214,6 +214,10 @@
             "type": "string",
             "nullable": true
           },
+          "eventAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "payload64": {
             "type": "string",
             "nullable": true

@@ -42,6 +42,7 @@ public class AppendEventCommandHandler : IRequestHandler<AppendEventCommand, Eve
         }
 
         stream.Version++;
+        var eventAt = DateTime.SpecifyKind(request.EventAt, DateTimeKind.Utc);
 
         var ev = new EventDto
         {
@@ -49,6 +50,7 @@ public class AppendEventCommandHandler : IRequestHandler<AppendEventCommand, Eve
             Version = stream.Version,
             GlobalVersion = 0,
             Type = request.Type,
+            EventAt = eventAt,
             Payload = Convert.FromBase64String(request.Payload64)
         };
 
@@ -62,6 +64,7 @@ public class AppendEventCommandHandler : IRequestHandler<AppendEventCommand, Eve
             StreamId = request.StreamId,
             Version = stream.Version,
             Type = request.Type,
+            EventAt = eventAt,
             Payload64 = request.Payload64
         };
 

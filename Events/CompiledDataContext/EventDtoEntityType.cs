@@ -31,6 +31,13 @@ namespace Events.CompiledDataContext
             globalVersion.AddAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
             globalVersion.AddAnnotation("Relational:ColumnName", "global_version");
 
+            var eventAt = runtimeEntityType.AddProperty(
+                "EventAt",
+                typeof(DateTime),
+                propertyInfo: typeof(EventDto).GetProperty("EventAt", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(EventDto).GetField("<EventAt>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            eventAt.AddAnnotation("Relational:ColumnName", "event_at");
+
             var payload = runtimeEntityType.AddProperty(
                 "Payload",
                 typeof(byte[]),
@@ -43,7 +50,7 @@ namespace Events.CompiledDataContext
                 typeof(string),
                 propertyInfo: typeof(EventDto).GetProperty("StreamId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(EventDto).GetField("<StreamId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                maxLength: 128);
+                maxLength: 256);
             streamId.AddAnnotation("Relational:ColumnName", "stream_id");
 
             var type = runtimeEntityType.AddProperty(

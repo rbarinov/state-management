@@ -11,8 +11,8 @@ builder.ConfigureServices(
 
         e.AddHttpClient();
 
-        e.AddTransient<EventClient>(
-            c => new EventClient(
+        e.AddTransient<EventsClient>(
+            c => new EventsClient(
                 "http://localhost:5208/",
                 c.GetRequiredService<HttpClient>()
             )

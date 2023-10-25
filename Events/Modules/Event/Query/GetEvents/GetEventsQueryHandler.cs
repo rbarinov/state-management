@@ -37,6 +37,7 @@ public class GetEventsQueryHandler
                     StreamId = e.StreamId,
                     Version = e.Version,
                     Type = e.Type,
+                    EventAt = e.EventAt,
                     Payload64 = Convert.ToBase64String(e.Payload)
                 }
             )

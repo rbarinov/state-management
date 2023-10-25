@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -15,7 +16,7 @@ namespace Events.Migrations
                 name: "streams",
                 columns: table => new
                 {
-                    stream_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    stream_id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     version = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -29,8 +30,9 @@ namespace Events.Migrations
                 {
                     global_version = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    stream_id = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    stream_id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     version = table.Column<int>(type: "integer", nullable: false),
+                    event_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     type = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
                     payload = table.Column<byte[]>(type: "bytea", nullable: false)
                 },

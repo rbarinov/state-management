@@ -24,7 +24,7 @@ namespace Events.CompiledDataContext
                 propertyInfo: typeof(StreamDto).GetProperty("StreamId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(StreamDto).GetField("<StreamId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                maxLength: 128);
+                maxLength: 256);
             streamId.AddAnnotation("Relational:ColumnName", "stream_id");
 
             var version = runtimeEntityType.AddProperty(

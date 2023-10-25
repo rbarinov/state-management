@@ -23,7 +23,7 @@ public class EventDbContext : DbContext
 
         streamEntity.Property(s => s.StreamId)
             .HasColumnName("stream_id")
-            .HasMaxLength(128)
+            .HasMaxLength(256)
             .IsRequired();
 
         streamEntity.Property(s => s.Version)
@@ -48,7 +48,7 @@ public class EventDbContext : DbContext
 
         eventEntity.Property(e => e.StreamId)
             .HasColumnName("stream_id")
-            .HasMaxLength(128)
+            .HasMaxLength(256)
             .IsRequired();
 
         eventEntity.HasOne(e => e.Stream)
@@ -69,6 +69,10 @@ public class EventDbContext : DbContext
         eventEntity.Property(e => e.Type)
             .HasColumnName("type")
             .HasMaxLength(256)
+            .IsRequired();
+
+        eventEntity.Property(e => e.EventAt)
+            .HasColumnName("event_at")
             .IsRequired();
 
         eventEntity.Property(e => e.Payload)

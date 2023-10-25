@@ -44,7 +44,11 @@ public class StreamModule : CarterModule
     {
         var command = new AppendEventCommand
         {
-            StreamId = streamId, ExpectedVersion = model.ExpectedVersion, Type = model.Type, Payload64 = model.Payload64
+            StreamId = streamId,
+            ExpectedVersion = model.ExpectedVersion,
+            Type = model.Type,
+            Payload64 = model.Payload64,
+            EventAt = model.EventAt
         };
 
         var response = await sender.Send(command);

@@ -4,7 +4,8 @@
     "EventImporter": {
       "commandName": "Project",
       "environmentVariables": {
-        
+        "Logging__LogLevel__System": "Warning",
+        "Logging__LogLevel__Microsoft": "Warning"
       }
     }
   }

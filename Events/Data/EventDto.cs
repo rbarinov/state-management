@@ -8,7 +8,9 @@ public class EventDto
 
     public StreamDto Stream { get; set; } = null!;
 
-    public int Version { get; set; }
+    public required int Version { get; set; }
+
+    public required DateTime EventAt { get; set; }
 
     public required string Type { get; set; }
 
