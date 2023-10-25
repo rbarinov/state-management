@@ -1,0 +1,63 @@
+using Events.Data;
+using Events.Models;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace Events.Modules.Stream.Command.AppendEvent;
+
+public class AppendEventCommandHandler(EventDbContext db) : IRequestHandler<AppendEventCommand, EventModelOut?>
+{
+    public async Task<EventModelOut?> Handle(AppendEventCommand request, CancellationToken cancellationToken)
+    {
+        StreamDto? stream;
+
+        if (request.ExpectedVersion == -1)
+        {
+            stream = new StreamDto
+            {
+                StreamId = request.StreamId,
+                Version = -1
+            };
+
+            db.Streams.Add(stream);
+        }
+        else
+        {
+            stream = await db.Streams.FirstOrDefaultAsync(
+                e => e.StreamId == request.StreamId,
+                cancellationToken: cancellationToken
+            );
+        }
+
+        if (stream == null || stream.Version != request.ExpectedVersion)
+        {
+            return null;
+        }
+
+        stream.Version++;
+
+        var ev = new EventDto
+        {
+            StreamId = request.StreamId,
+            Version = stream.Version,
+            GlobalVersion = 0,
+            Type = request.Type,
+            Payload = Convert.FromBase64String(request.Payload64)
+        };
+
+        db.Events.Add(ev);
+
+        await db.SaveChangesAsync(cancellationToken);
+
+        var response = new EventModelOut
+        {
+            GlobalVersion = ev.GlobalVersion,
+            StreamId = request.StreamId,
+            Version = stream.Version,
+            Type = request.Type,
+            Payload64 = request.Payload64
+        };
+
+        return response;
+    }
+}
