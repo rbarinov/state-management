@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Events", "Events\Events.csproj", "{19FEF85D-906E-43F8-BA33-8A0174DF0043}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventImporter", "EventImporter\EventImporter.csproj", "{2CD5B848-DD09-4DDC-95CB-C9D300F280C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{19FEF85D-906E-43F8-BA33-8A0174DF0043}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19FEF85D-906E-43F8-BA33-8A0174DF0043}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19FEF85D-906E-43F8-BA33-8A0174DF0043}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CD5B848-DD09-4DDC-95CB-C9D300F280C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CD5B848-DD09-4DDC-95CB-C9D300F280C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CD5B848-DD09-4DDC-95CB-C9D300F280C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CD5B848-DD09-4DDC-95CB-C9D300F280C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -36,6 +36,6 @@ var app = builder.Build();
 app.MapCarter();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(e => e.DisplayOperationId());
 
 app.Run();

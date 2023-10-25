@@ -2,8 +2,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Events.Data;
 
-public class EventDbContext(DbContextOptions<EventDbContext> options) : DbContext(options)
+public class EventDbContext : DbContext
 {
+    public EventDbContext(DbContextOptions<EventDbContext> options)
+        : base(options)
+    {
+    }
+
     public required DbSet<StreamDto> Streams { get; set; }
     public required DbSet<EventDto> Events { get; set; }
 

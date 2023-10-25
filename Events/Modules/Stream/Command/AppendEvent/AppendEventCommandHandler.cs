@@ -5,8 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Events.Modules.Stream.Command.AppendEvent;
 
-public class AppendEventCommandHandler(EventDbContext db) : IRequestHandler<AppendEventCommand, EventModelOut?>
+public class AppendEventCommandHandler : IRequestHandler<AppendEventCommand, EventModelOut?>
 {
+    private readonly EventDbContext _db;
+
+    public AppendEventCommandHandler(EventDbContext db)
+    {
+        _db = db;
+    }
+
     public async Task<EventModelOut?> Handle(AppendEventCommand request, CancellationToken cancellationToken)
     {
         StreamDto? stream;
@@ -19,11 +26,11 @@ public class AppendEventCommandHandler(EventDbContext db) : IRequestHandler<Appe
                 Version = -1
             };
 
-            db.Streams.Add(stream);
+            _db.Streams.Add(stream);
         }
         else
         {
-            stream = await db.Streams.FirstOrDefaultAsync(
+            stream = await _db.Streams.FirstOrDefaultAsync(
                 e => e.StreamId == request.StreamId,
                 cancellationToken: cancellationToken
             );
@@ -45,9 +52,9 @@ public class AppendEventCommandHandler(EventDbContext db) : IRequestHandler<Appe
             Payload = Convert.FromBase64String(request.Payload64)
         };
 
-        db.Events.Add(ev);
+        _db.Events.Add(ev);
 
-        await db.SaveChangesAsync(cancellationToken);
+        await _db.SaveChangesAsync(cancellationToken);
 
         var response = new EventModelOut
         {

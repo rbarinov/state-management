@@ -5,15 +5,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Events.Modules.Stream.Query.GetEvents;
 
-public class GetEventsQueryHandler(EventDbContext db)
-    : IRequestHandler<GetEventsQuery, List<EventModelOut>>
+public class GetEventsQueryHandler
+    : IRequestHandler<GetEventsQuery, PagedListOut<EventModelOut>>
 {
-    public async Task<List<EventModelOut>> Handle(
+    private readonly EventDbContext _db;
+
+    public GetEventsQueryHandler(EventDbContext db)
+    {
+        _db = db;
+    }
+
+    public async Task<PagedListOut<EventModelOut>> Handle(
         GetEventsQuery request,
         CancellationToken cancellationToken
     )
     {
-        var q = db.Events
+        var q = _db.Events
+            .AsNoTracking()
             .Where(e => e.StreamId == request.StreamId);
 
         if (request.FromVersion.HasValue)
@@ -22,9 +30,6 @@ public class GetEventsQueryHandler(EventDbContext db)
         }
 
         var events = await q
-            .OrderBy(e => e.GlobalVersion)
-            .Skip((request.Page - 1) * request.PageSize)
-            .Take(request.PageSize)
             .Select(
                 e => new EventModelOut
                 {
@@ -35,7 +40,8 @@ public class GetEventsQueryHandler(EventDbContext db)
                     Payload64 = Convert.ToBase64String(e.Payload)
                 }
             )
-            .ToListAsync(cancellationToken: cancellationToken);
+            .OrderBy(e => e.GlobalVersion)
+            .ToPagedListAsync(request.Page, request.PageSize);
 
         return events;
     }
