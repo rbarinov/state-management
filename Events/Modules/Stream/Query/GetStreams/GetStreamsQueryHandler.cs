@@ -1,5 +1,5 @@
 using Events.Data;
-using Events.Models;
+using Events.Modules.Stream.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 

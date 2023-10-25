@@ -1,4 +1,4 @@
-namespace Events.Models;
+namespace Events.Modules.Stream.Models;
 
 public record StreamModelOut
 {

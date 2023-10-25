@@ -1,6 +1,6 @@
 using Carter;
-using Events.Models;
 using Events.Modules.Stream.Command.AppendEvent;
+using Events.Modules.Stream.Models;
 using Events.Modules.Stream.Query.GetEvents;
 using Events.Modules.Stream.Query.GetStreams;
 using MediatR;

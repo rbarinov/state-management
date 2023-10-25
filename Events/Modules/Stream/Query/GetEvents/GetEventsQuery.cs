@@ -1,4 +1,4 @@
-using Events.Models;
+using Events.Modules.Shared.Models;
 using MediatR;
 
 namespace Events.Modules.Stream.Query.GetEvents;

@@ -1,4 +1,4 @@
-namespace Events.Models;
+namespace Events.Modules.Shared.Models;
 
 public record EventModelOut
 {
