@@ -1,6 +1,8 @@
-﻿using EventImporter;
+﻿using System.Runtime.CompilerServices;
+using EventImporter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 var builder = Host.CreateDefaultBuilder();
 
@@ -10,6 +12,8 @@ builder.ConfigureServices(
         e.AddHostedService<Application>();
 
         e.AddHttpClient();
+
+        e.AddLogging(c => c.AddSimpleConsole(cc => cc.SingleLine = true));
 
         e.AddTransient<EventsClient>(
             c => new EventsClient(
