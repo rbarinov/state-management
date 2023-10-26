@@ -24,6 +24,7 @@
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="NYActor.EventSourcing.EventStore.v5" Version="3.0.82" />
+        <PackageReference Include="System.Threading.Channels" Version="7.0.0" />
     </ItemGroup>
 
     <ItemGroup>

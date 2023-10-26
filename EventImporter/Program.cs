@@ -9,11 +9,9 @@ var builder = Host.CreateDefaultBuilder();
 builder.ConfigureServices(
     e =>
     {
-        e.AddHostedService<Application>();
-
-        e.AddHttpClient();
-
         e.AddLogging(c => c.AddSimpleConsole(cc => cc.SingleLine = true));
+        e.AddSingleton<EventStoreReader>();
+        e.AddHttpClient();
 
         e.AddTransient<EventsClient>(
             c => new EventsClient(
@@ -21,6 +19,8 @@ builder.ConfigureServices(
                 c.GetRequiredService<HttpClient>()
             )
         );
+
+        e.AddHostedService<Application>();
     }
 );
 
