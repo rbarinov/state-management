@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using EventImporter;
+﻿using EventImporter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -20,7 +19,7 @@ builder.ConfigureServices(
 
         e.AddTransient<EventsClient>(
             c => new EventsClient(
-                "http://localhost:5000/",
+                "http://localhost:5208/",
                 c.GetRequiredService<HttpClient>()
             )
         );
