@@ -1,4 +1,6 @@
+using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.Hosting;
@@ -32,56 +34,81 @@ public class Application : BackgroundService
     )
     {
         var eventStoreConnection = EventStoreConnection.Create(
-            "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500"
-            // "ConnectTo=tcp://admin:changeit@192.168.1.165:1113; HeartBeatTimeout=500"
+            // "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500"
+            "ConnectTo=tcp://admin:changeit@192.168.1.165:1113; HeartBeatTimeout=500"
         );
 
         await eventStoreConnection.ConnectAsync();
 
         await _reader.ExtractEventsAndProcess(
             eventStoreConnection,
-            2048,
-            2048,
+            32768 * 2,
+            32768,
             async buffer =>
             {
-                await buffer
+                var groupsByStream = buffer.GroupBy(e => e.StreamId)
+                    .Select(
+                        g => (streamId: g.Key, batchedEvents: g
+                                .Select((e, i) => (index: i, value: e))
+                                .GroupBy(e => e.index / 1000, e => e.value)
+                                .Select(g2 => g2.ToList())
+                                .ToList()
+                            )
+                    )
+                    .ToList();
+
+                await groupsByStream.Select(
+                        e => (streamId: e.streamId, streamObservable: e.batchedEvents
+                                .Select(
+                                    batch => Observable.FromAsync(
+                                            () => stoppingToken.IsCancellationRequested
+                                                ? Task.FromResult<ICollection<EventModelOut>>(default!)
+                                                : _client.AppendMultipleEventsAsync(
+                                                    e.streamId,
+                                                    new MultipleEventModelIn
+                                                    {
+                                                        ExpectedVersion = batch.First()
+                                                            .Version - 1,
+                                                        Events = batch.Select(
+                                                                c => new MultipleEventModelItemIn
+                                                                {
+                                                                    Type = c.Type,
+                                                                    EventAt = c.EventAt,
+                                                                    Payload64 = c.Payload64
+                                                                }
+                                                            )
+                                                            .ToList()
+                                                    },
+                                                    stoppingToken
+                                                )
+                                        )
+                                        .IgnoreElements()
+                                        .Cast<Unit>()
+                                        .Catch<Unit, Exception>(
+                                            ex =>
+                                            {
+                                                _logger.LogError($"Failed to invoke API with an error: {ex}");
+
+                                                return Observable.Empty<Unit>();
+                                            }
+                                        )
+                                )
+                                .Concat()
+                            )
+                    )
+                    .ToObservable()
                     .GroupBy(
-                        e => e.StreamId.ToCharArray()
-                            .Sum(c => c) % 16
+                        e => e.streamId.ToCharArray()
+                            .Sum(c => c) % Environment.ProcessorCount * 2,
+                        e => e.streamObservable
                     )
                     .Select(
-                        group => group
-                            .Select(
-                                e => Observable.FromAsync(
-                                        () =>
-                                            _client.AppendEventAsync(
-                                                e.StreamId,
-                                                new EventModelIn()
-                                                {
-                                                    Type = e.Type,
-                                                    EventAt = e.EventAt,
-                                                    ExpectedVersion = e.Version - 1,
-                                                    Payload64 = e.Payload64
-                                                },
-                                                stoppingToken
-                                            )
-                                    )
-                                    .Catch<EventModelOut, ApiException>(
-                                        ex =>
-                                        {
-                                            _logger.LogError(
-                                                $"got error: {ex.StatusCode} {ex.Message} for {JsonConvert.SerializeObject(e with {
-                                                    Payload64 = Encoding.UTF8.GetString(Convert.FromBase64String(e.Payload64)) })}"
-                                            );
-
-                                            return Observable.Empty<EventModelOut>();
-                                        }
-                                    )
-                            )
-                            .Merge(1)
+                        groupConcurrency => groupConcurrency
+                            .Concat()
                     )
                     .Merge()
-                    .LastOrDefaultAsync();
+                    .LastOrDefaultAsync()
+                    .ToTask(stoppingToken);
             },
             stoppingToken
         );

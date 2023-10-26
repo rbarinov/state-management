@@ -1,8 +1,7 @@
 namespace Events.Modules.Stream.Models;
 
-public record EventModelIn
+public record MultipleEventModelItemIn
 {
-    public int ExpectedVersion { get; init; }
     public required string Type { get; init; }
     public required DateTime EventAt { get; init; }
     public required string Payload64 { get; init; }

@@ -1,6 +1,8 @@
+using System.Collections.Immutable;
 using Carter;
 using Events.Modules.Shared.Models;
 using Events.Modules.Stream.Command.AppendEvent;
+using Events.Modules.Stream.Command.AppendMultipleEvents;
 using Events.Modules.Stream.Models;
 using Events.Modules.Stream.Query.GetEvents;
 using Events.Modules.Stream.Query.GetStreams;
@@ -24,20 +26,19 @@ public class StreamModule : CarterModule
             .Produces<PagedListOut<StreamModelOut>>(StatusCodes.Status200OK)
             .WithName("getStreams");
 
-        ;
-
         app.MapGet("/{streamId}", GetStreamEvents)
             .Produces<PagedListOut<EventModelOut>>(StatusCodes.Status200OK)
             .WithName("getStreamEvents");
-
-        ;
 
         app.MapPost("/{streamId}", AppendEvent)
             .Produces<EventModelOut>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("appendEvent");
 
-        ;
+        app.MapPost("/{streamId}/multiple", AppendMultipleEvents)
+            .Produces<IReadOnlyList<EventModelOut>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status400BadRequest)
+            .WithName("appendMultipleEvents");
     }
 
     private static async Task<IResult> AppendEvent(ISender sender, string streamId, [FromBody] EventModelIn model)
@@ -57,6 +58,33 @@ public class StreamModule : CarterModule
         {
             return Results.BadRequest();
         }
+
+        return Results.Ok(response);
+    }
+
+    private static async Task<IResult> AppendMultipleEvents(
+        ISender sender,
+        string streamId,
+        [FromBody] MultipleEventModelIn model
+    )
+    {
+        var command = new AppendMultipleEventsCommand
+        {
+            StreamId = streamId,
+            ExpectedVersion = model.ExpectedVersion,
+            Events = model.Events
+                .Select(
+                    e => new AppendMultipleEventsItem
+                    {
+                        Type = e.Type,
+                        EventAt = e.EventAt,
+                        Payload64 = e.Payload64
+                    }
+                )
+                .ToImmutableList()
+        };
+
+        var response = await sender.Send(command);
 
         return Results.Ok(response);
     }
