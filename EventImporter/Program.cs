@@ -9,13 +9,18 @@ var builder = Host.CreateDefaultBuilder();
 builder.ConfigureServices(
     e =>
     {
-        e.AddLogging(c => c.AddSimpleConsole(cc => cc.SingleLine = true));
+        e.AddLogging(
+            c => c
+                .AddSimpleConsole(cc => cc.SingleLine = true)
+                .SetMinimumLevel(LogLevel.Warning)
+        );
+
         e.AddSingleton<EventStoreReader>();
         e.AddHttpClient();
 
         e.AddTransient<EventsClient>(
             c => new EventsClient(
-                "http://localhost:5208/",
+                "http://localhost:5000/",
                 c.GetRequiredService<HttpClient>()
             )
         );

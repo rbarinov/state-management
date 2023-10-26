@@ -17,7 +17,8 @@ public class EventStoreReader
         IEventStoreConnection eventStoreConnection,
         int channelCapacity,
         int bufferSize,
-        Func<IList<EventContainer>, Task> processEvents
+        Func<IList<EventContainer>, Task> processEvents,
+        CancellationToken cancellationToken
     )
     {
         var channel = Channel.CreateBounded<EventContainer>(
@@ -36,11 +37,11 @@ public class EventStoreReader
             {
                 var buffer = new List<EventContainer>();
 
-                while (true)
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     buffer.Clear();
 
-                    while (buffer.Count < bufferSize)
+                    while (buffer.Count < bufferSize && !cancellationToken.IsCancellationRequested)
                     {
                         try
                         {
@@ -73,9 +74,15 @@ public class EventStoreReader
 
         var subscription = eventStoreConnection.SubscribeToAllFrom(
             Position.Start,
-            new CatchUpSubscriptionSettings(channelCapacity * 2, channelCapacity * 2, false, false),
+            new CatchUpSubscriptionSettings(512, 512, false, false),
             eventAppeared: async (subscription, ese) =>
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    channel.Writer.Complete();
+                    return;
+                }
+                
                 var streamId = ese.OriginalStreamId;
 
                 if (streamId.StartsWith("$"))
@@ -92,7 +99,7 @@ public class EventStoreReader
                 var eventAt = ese.Event.Created;
 
                 var payload64 = Convert.ToBase64String(bytes);
-
+                
                 await channel.Writer.WriteAsync(
                     new EventContainer
                     {

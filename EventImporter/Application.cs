@@ -32,16 +32,16 @@ public class Application : BackgroundService
     )
     {
         var eventStoreConnection = EventStoreConnection.Create(
-            // "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500"
-            "ConnectTo=tcp://admin:changeit@192.168.1.165:1113; HeartBeatTimeout=500"
+            "ConnectTo=tcp://admin:changeit@localhost:1113; HeartBeatTimeout=500"
+            // "ConnectTo=tcp://admin:changeit@192.168.1.165:1113; HeartBeatTimeout=500"
         );
 
         await eventStoreConnection.ConnectAsync();
 
         await _reader.ExtractEventsAndProcess(
             eventStoreConnection,
-            128,
-            128,
+            2048,
+            2048,
             async buffer =>
             {
                 await buffer
@@ -82,7 +82,8 @@ public class Application : BackgroundService
                     )
                     .Merge()
                     .LastOrDefaultAsync();
-            }
+            },
+            stoppingToken
         );
 
         _applicationLifetime.StopApplication();

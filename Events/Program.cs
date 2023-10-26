@@ -22,6 +22,12 @@ builder.Services.ConfigureHttpJsonOptions(
     }
 );
 
+builder.Services.AddLogging(
+    e => e
+        .AddSimpleConsole(c => c.SingleLine = true)
+        .SetMinimumLevel(LogLevel.Warning)
+);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
