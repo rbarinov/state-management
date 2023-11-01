@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Carter;
 using Events.Data;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,10 @@ builder.Services.AddMediatR(
     e => { e.RegisterServicesFromAssemblyContaining<Program>(); }
 );
 
+builder.Services.Configure<KestrelServerOptions>(
+    options => { options.Limits.MaxRequestBodySize = 268_435_456; }
+);
+
 var app = builder.Build();
 
 app.MapCarter();
@@ -43,4 +48,4 @@ app.MapCarter();
 app.UseSwagger();
 app.UseSwaggerUI(e => e.DisplayOperationId());
 
-app.Run();
+await app.RunAsync();
