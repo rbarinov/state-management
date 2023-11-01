@@ -11,31 +11,28 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Events.Modules.Stream;
 
-public class StreamModule : CarterModule
+public class StreamModule : ICarterModule
 {
-    public StreamModule()
-        : base("/stream")
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        IncludeInOpenApi();
-        WithTags("Stream");
-    }
+        var group = app.MapGroup("/streams")
+            .WithOpenApi()
+            .WithTags("Stream");
 
-    public override void AddRoutes(IEndpointRouteBuilder app)
-    {
-        app.MapGet("/", GetStreams)
+        group.MapGet("/", GetStreams)
             .Produces<PagedListOut<StreamModelOut>>(StatusCodes.Status200OK)
             .WithName("getStreams");
 
-        app.MapGet("/{streamId}", GetStreamEvents)
+        group.MapGet("/{streamId}", GetStreamEvents)
             .Produces<PagedListOut<EventModelOut>>(StatusCodes.Status200OK)
             .WithName("getStreamEvents");
 
-        app.MapPost("/{streamId}", AppendEvent)
+        group.MapPost("/{streamId}", AppendEvent)
             .Produces<EventModelOut>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("appendEvent");
 
-        app.MapPost("/{streamId}/multiple", AppendMultipleEvents)
+        group.MapPost("/{streamId}/multiple", AppendMultipleEvents)
             .Produces<IReadOnlyList<EventModelOut>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status400BadRequest)
             .WithName("appendMultipleEvents");

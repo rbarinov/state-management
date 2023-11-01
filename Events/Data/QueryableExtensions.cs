@@ -8,14 +8,15 @@ public static class QueryableExtensions
     public static async Task<PagedListOut<T>> ToPagedListAsync<T>(
         this IOrderedQueryable<T> source,
         int page,
-        int pageSize
+        int pageSize,
+        CancellationToken cancellationToken
     )
     {
-        var totalCount = await source.CountAsync();
+        var totalCount = await source.CountAsync(cancellationToken: cancellationToken);
 
         var items = await source.Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
 
         return new PagedListOut<T>
         {

@@ -13,6 +13,20 @@ namespace Events.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "states",
+                columns: table => new
+                {
+                    key = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    reference_version = table.Column<int>(type: "integer", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    payload = table.Column<byte[]>(type: "bytea", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_states", x => x.key);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "streams",
                 columns: table => new
                 {
@@ -40,7 +54,7 @@ namespace Events.Migrations
                 {
                     table.PrimaryKey("pk_events", x => x.global_version);
                     table.ForeignKey(
-                        name: "fk_events_stream_id",
+                        name: "fk_events_streams_stream_temp_id",
                         column: x => x.stream_id,
                         principalTable: "streams",
                         principalColumn: "stream_id",
@@ -64,6 +78,9 @@ namespace Events.Migrations
         {
             migrationBuilder.DropTable(
                 name: "events");
+
+            migrationBuilder.DropTable(
+                name: "states");
 
             migrationBuilder.DropTable(
                 name: "streams");

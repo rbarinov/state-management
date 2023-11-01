@@ -42,7 +42,7 @@ public class GetEventsQueryHandler
                 }
             )
             .OrderBy(e => e.GlobalVersion)
-            .ToPagedListAsync(request.Page, request.PageSize);
+            .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
 
         return events;
     }

@@ -27,7 +27,7 @@ public class GetStreamsQueryHandle : IRequestHandler<GetStreamsQuery, PagedListO
                 }
             )
             .OrderBy(e => e.StreamId)
-            .ToPagedListAsync(request.Page, request.PageSize);
+            .ToPagedListAsync(request.Page, request.PageSize, cancellationToken);
 
         return streams;
     }

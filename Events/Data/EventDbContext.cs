@@ -11,18 +11,16 @@ public class EventDbContext : DbContext
 
     public required DbSet<StreamDto> Streams { get; set; }
     public required DbSet<EventDto> Events { get; set; }
+    public required DbSet<StateDto> States { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var streamEntity = modelBuilder.Entity<StreamDto>();
 
         streamEntity
-            .ToTable("streams")
-            .HasKey(s => s.StreamId)
-            .HasName("pk_streams");
+            .HasKey(s => s.StreamId);
 
         streamEntity.Property(s => s.StreamId)
-            .HasColumnName("stream_id")
             .HasMaxLength(256)
             .IsRequired();
 
@@ -34,20 +32,15 @@ public class EventDbContext : DbContext
         var eventEntity = modelBuilder.Entity<EventDto>();
 
         eventEntity
-            .ToTable("events")
-            .HasKey(e => e.GlobalVersion)
-            .HasName("pk_events");
+            .HasKey(e => e.GlobalVersion);
 
         eventEntity.Property(e => e.GlobalVersion)
-            .UseIdentityColumn()
-            .HasColumnName("global_version");
+            .UseIdentityColumn();
 
         eventEntity.HasIndex(e => new { e.StreamId, e.Version })
-            .HasDatabaseName("ix_events_stream_id_version")
             .IsUnique();
 
         eventEntity.Property(e => e.StreamId)
-            .HasColumnName("stream_id")
             .HasMaxLength(256)
             .IsRequired();
 
@@ -56,27 +49,35 @@ public class EventDbContext : DbContext
             .HasForeignKey(e => e.StreamId)
             .HasPrincipalKey(e => e.StreamId)
             .IsRequired()
-            .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("fk_events_stream_id");
+            .OnDelete(DeleteBehavior.Restrict);
 
-        eventEntity.HasIndex(e => e.StreamId)
-            .HasDatabaseName("ix_events_stream_id");
+        eventEntity.HasIndex(e => e.StreamId);
 
         eventEntity.Property(e => e.Version)
-            .HasColumnName("version")
             .IsRequired();
 
         eventEntity.Property(e => e.Type)
-            .HasColumnName("type")
             .HasMaxLength(256)
             .IsRequired();
 
         eventEntity.Property(e => e.EventAt)
-            .HasColumnName("event_at")
             .IsRequired();
 
         eventEntity.Property(e => e.Payload)
-            .HasColumnName("payload")
+            .IsRequired();
+
+        var stateEntity = modelBuilder.Entity<StateDto>();
+
+        stateEntity.HasKey(e => e.Key);
+
+        stateEntity.Property(e => e.Key)
+            .HasMaxLength(256)
+            .IsRequired();
+
+        stateEntity.Property(e => e.UpdatedAt)
+            .IsRequired();
+
+        stateEntity.Property(e => e.Payload)
             .IsRequired();
     }
 }

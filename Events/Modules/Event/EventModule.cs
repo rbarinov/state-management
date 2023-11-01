@@ -1,24 +1,19 @@
-using System.Net;
 using Carter;
 using Events.Modules.Event.Query.GetEvents;
 using Events.Modules.Shared.Models;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Events.Modules.Event;
 
-public class EventModule : CarterModule
+public class EventModule : ICarterModule
 {
-    public EventModule()
-        : base("/events")
+    public void AddRoutes(IEndpointRouteBuilder app)
     {
-        IncludeInOpenApi();
-        WithTags("Events");
-    }
+        var group = app.MapGroup("/events")
+            .WithOpenApi()
+            .WithTags("Events");
 
-    public override void AddRoutes(IEndpointRouteBuilder app)
-    {
-        app.MapGet("/", GetEvents)
+        group.MapGet("/", GetEvents)
             .Produces<PagedListOut<EventModelOut>>(StatusCodes.Status200OK)
             .WithName("getEvents");
     }

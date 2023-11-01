@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using Carter;
-using Events.CompiledDataContext;
 using Events.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContextPool<EventDbContext>(
     (provider, optionsBuilder) =>
     {
-        optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("db"));
-        optionsBuilder.UseModel(EventDbContextModel.Instance);
+        optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("db"))
+            .UseSnakeCaseNamingConvention();
     }
 );
 
@@ -25,7 +24,7 @@ builder.Services.ConfigureHttpJsonOptions(
 builder.Services.AddLogging(
     e => e
         .AddSimpleConsole(c => c.SingleLine = true)
-        .SetMinimumLevel(LogLevel.Warning)
+    // .SetMinimumLevel(LogLevel.Warning)
 );
 
 builder.Services.AddEndpointsApiExplorer();

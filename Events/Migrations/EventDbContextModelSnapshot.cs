@@ -69,6 +69,32 @@ namespace Events.Migrations
                     b.ToTable("events", (string)null);
                 });
 
+            modelBuilder.Entity("Events.Data.StateDto", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("key");
+
+                    b.Property<byte[]>("Payload")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("payload");
+
+                    b.Property<int?>("ReferenceVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("reference_version");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Key")
+                        .HasName("pk_states");
+
+                    b.ToTable("states", (string)null);
+                });
+
             modelBuilder.Entity("Events.Data.StreamDto", b =>
                 {
                     b.Property<string>("StreamId")
@@ -94,7 +120,7 @@ namespace Events.Migrations
                         .HasForeignKey("StreamId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_events_stream_id");
+                        .HasConstraintName("fk_events_streams_stream_temp_id");
 
                     b.Navigation("Stream");
                 });
