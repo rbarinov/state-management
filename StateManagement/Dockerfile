@@ -7,13 +7,13 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY ["StateManagement/StateManagement.csproj", "StateManagement/"]
-RUN dotnet restore -a $TARGETARCH "StateManagement/StateManagement.csproj"
+RUN dotnet restore "StateManagement/StateManagement.csproj"
 COPY . .
 WORKDIR "/src/StateManagement"
-RUN dotnet build -a $TARGETARCH "StateManagement.csproj" -c Release -o /app/build
+RUN dotnet build "StateManagement.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish -a $TARGETARCH "StateManagement.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "StateManagement.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
