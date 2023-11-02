@@ -1,7 +1,7 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:7.0 AS base
+﻿FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/runtime:8.0 AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["StateManagement.EventStoreV5.Importer/StateManagement.EventStoreV5.Importer.csproj", "StateManagement.EventStoreV5.Importer/"]
 RUN dotnet restore "StateManagement.EventStoreV5.Importer/StateManagement.EventStoreV5.Importer.csproj"
@@ -15,4 +15,5 @@ RUN dotnet publish "StateManagement.EventStoreV5.Importer.csproj" -c Release -o 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "StateManagement.EventStoreV5.Importer.dll"]

@@ -4,7 +4,6 @@ EXPOSE 80
 EXPOSE 443
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG TARGETARCH
 WORKDIR /src
 COPY ["StateManagement/StateManagement.csproj", "StateManagement/"]
 RUN dotnet restore "StateManagement/StateManagement.csproj"
