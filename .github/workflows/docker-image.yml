@@ -1,0 +1,30 @@
+name: Build source and push container image
+
+on:
+  push:
+    branches: [ "master" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4.1.1
+    - uses: docker/login-action@v3.0.0
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - uses: docker/metadata-action@v5.0.0
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+    - uses: docker/build-push-action@v5.0.0
+      with:
+        context: .
+        push: true
+        file: StateManagement/Dockerfile
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
