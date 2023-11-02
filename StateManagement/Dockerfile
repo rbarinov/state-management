@@ -1,18 +1,19 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+﻿FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG TARGETARCH
 WORKDIR /src
 COPY ["StateManagement/StateManagement.csproj", "StateManagement/"]
-RUN dotnet restore "StateManagement/StateManagement.csproj"
+RUN dotnet restore -a $TARGETARCH "StateManagement/StateManagement.csproj"
 COPY . .
 WORKDIR "/src/StateManagement"
-RUN dotnet build "StateManagement.csproj" -c Release -o /app/build
+RUN dotnet build -a $TARGETARCH "StateManagement.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "StateManagement.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish -a $TARGETARCH "StateManagement.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app

@@ -54,7 +54,7 @@ namespace StateManagement.Migrations
                 {
                     table.PrimaryKey("pk_events", x => x.global_version);
                     table.ForeignKey(
-                        name: "fk_events_streams_stream_temp_id",
+                        name: "fk_events_streams_stream_id",
                         column: x => x.stream_id,
                         principalTable: "streams",
                         principalColumn: "stream_id",

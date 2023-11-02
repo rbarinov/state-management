@@ -2,7 +2,7 @@ namespace EventImporter;
 
 public class Configuration
 {
-    public string ConnectionString { get; set; }
+    public string ConnectionString { get; set; } = null!;
     public int ReadChannelCapacity { get; set; }
     public int BufferSize { get; set; }
     public int MaxLiveQueueSize { get; set; }

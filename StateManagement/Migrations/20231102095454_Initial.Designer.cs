@@ -12,7 +12,7 @@ using StateManagement.Data;
 namespace StateManagement.Migrations
 {
     [DbContext(typeof(StateManagementDbContext))]
-    [Migration("20231102075928_Initial")]
+    [Migration("20231102095454_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace StateManagement.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.13")
+                .HasAnnotation("ProductVersion", "8.0.0-rc.2.23480.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -124,7 +124,7 @@ namespace StateManagement.Migrations
                         .HasForeignKey("StreamId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_events_streams_stream_temp_id");
+                        .HasConstraintName("fk_events_streams_stream_id");
 
                     b.Navigation("Stream");
                 });
