@@ -24,6 +24,7 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
     - uses: docker/build-push-action@v5.0.0
       with:
+        platforms: linux/amd64,linux/arm64
         context: .
         push: true
         file: StateManagement/Dockerfile
