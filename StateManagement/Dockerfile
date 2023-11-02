@@ -18,4 +18,5 @@ RUN dotnet publish "StateManagement.csproj" -c Release -o /app/publish /p:UseApp
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER $APP_UID
 ENTRYPOINT ["dotnet", "StateManagement.dll"]
