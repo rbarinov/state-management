@@ -3,15 +3,20 @@ using Carter;
 using StateManagement.Data;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using StateManagement;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var poolingConfiguration = builder.Configuration.GetSection("Pooling")
+    .Get<PoolingConfigurationSection>();
 
 builder.Services.AddDbContextPool<StateManagementDbContext>(
     (provider, optionsBuilder) =>
     {
         optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
             .UseSnakeCaseNamingConvention();
-    }
+    },
+    poolingConfiguration.ContextPoolSize
 );
 
 builder.Services.ConfigureHttpJsonOptions(
