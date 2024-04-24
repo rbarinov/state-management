@@ -10,13 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 var poolingConfiguration = builder.Configuration.GetSection("Pooling")
     .Get<PoolingConfigurationSection>();
 
-builder.Services.AddDbContextPool<StateManagementDbContext>(
+builder.Services.AddDbContext<StateManagementDbContext>(
     (provider, optionsBuilder) =>
     {
         optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("Default"))
             .UseSnakeCaseNamingConvention();
     },
-    poolingConfiguration.ContextPoolSize
+    ServiceLifetime.Scoped
 );
 
 builder.Services.ConfigureHttpJsonOptions(
